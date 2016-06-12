@@ -21,12 +21,12 @@ public class PalindromeDTO {
 	/**
 	 * This map holds the integer number which binary representation is a palindrome 
 	 */
-	private Map<BigInteger, String> palindromeStrings;
+	private volatile Map<BigInteger, String> palindromeStrings;
 	
 	/**
 	 * The required iterations to find the answer
 	 */
-	private BigInteger iterations;
+	private volatile BigInteger iterations;
 	
 	/**
 	 * A brief explanation about the complexity of the algorithm in Big O notation
@@ -44,14 +44,14 @@ public class PalindromeDTO {
 	 * @param number
 	 * @param palindromeString
 	 */
-	public void addPalindromeString(BigInteger number, String palindromeString){
+	public synchronized void addPalindromeString(BigInteger number, String palindromeString){
 		this.palindromeStrings.put(number, palindromeString);
 	}
 	
 	/**
 	 * This method add a new iteration
 	 */
-	public void addIteration(){
+	public synchronized void addIteration(){
 		this.iterations = iterations.add(BigInteger.ONE);
 	}
 	

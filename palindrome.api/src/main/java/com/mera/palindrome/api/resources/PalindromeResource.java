@@ -27,7 +27,7 @@ import com.mera.palindrome.api.utils.PalindromeHelper;
  * @author DavidCamilo
  *
  */
-@Path("v1/palindrome")
+@Path("/palindrome")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class PalindromeResource {
@@ -49,9 +49,10 @@ public class PalindromeResource {
 	 * @param max
 	 * @return
 	 */
+	@SuppressWarnings("deprecation")
 	@GET
 	@Timed
-	@Path("/range")
+	@Path("/v1/range")
 	public Response getBinaryPalindromesBetweenRange(
 			@QueryParam("min") @NotEmpty String min,
 			@QueryParam("max") @NotEmpty String max) {
@@ -66,6 +67,47 @@ public class PalindromeResource {
 				if (minValue.compareTo(maxValue) < 0) {
 					status = Response.Status.OK.getStatusCode();
 					entity = GSON.toJson(PalindromeHelper.getPalindromeResponse(minValue, maxValue));
+					
+				} else {
+					status = Response.Status.BAD_REQUEST.getStatusCode();
+					entity = "BAD REQUEST. Verify if the 'min' parameter is less or equals than 'max' parameter";
+				}
+			} else {
+				status = Response.Status.BAD_REQUEST.getStatusCode();
+				entity = "BAD REQUEST. Verify if the given parameters are integer numbers";
+			}
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
+			status = Response.Status.INTERNAL_SERVER_ERROR.getStatusCode();
+			entity = e.getMessage();
+		}
+		response = Response.status(status).entity(entity).build();
+		return response;
+	}
+	
+	/**
+	 * 
+	 * @param min
+	 * @param max
+	 * @return
+	 */
+	@GET
+	@Timed
+	@Path("/v2/range")
+	public Response getBinaryPalindromesBetweenRangeInParallel(
+			@QueryParam("min") @NotEmpty String min,
+			@QueryParam("max") @NotEmpty String max) {
+		Response response;
+		int status = 0;
+		String entity = StringUtils.EMPTY;
+		try {
+			if (StringsUtil.isAnIntegerNumber(min)
+					&& StringsUtil.isAnIntegerNumber(max)) {
+				BigInteger minValue = new BigInteger(min);
+				BigInteger maxValue = new BigInteger(max);
+				if (minValue.compareTo(maxValue) < 0) {
+					status = Response.Status.OK.getStatusCode();
+					entity = GSON.toJson(PalindromeHelper.getPalindromeNumberInParallel(minValue, maxValue));
 					
 				} else {
 					status = Response.Status.BAD_REQUEST.getStatusCode();
